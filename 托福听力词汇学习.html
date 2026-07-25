@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>托福听力五记号词汇 · 学习与默写</title>
+<style>
+  :root{
+    --paper:#F3F0E7;
+    --paper2:#EAE4D5;
+    --ink:#1D2530;
+    --muted:#726C5C;
+    --line:#D9D2C0;
+    --white:#FFFFFF;
+    --up:#2C5AA0;
+    --down:#B23A2E;
+    --star:#B8862E;
+    --emo:#7A5C8E;
+    --slate:#5B6B73;
+    --ok:#2F7D4F;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --serif: Georgia, "Songti SC", "STSong", "Noto Serif SC", serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--serif);}
+  body{padding:28px 18px 80px;}
+  .wrap{max-width:960px;margin:0 auto;}
+
+  /* header */
+  header{text-align:center;margin-bottom:22px;}
+  h1{font-size:clamp(24px,4vw,34px);margin:0 0 4px;letter-spacing:0.5px;}
+  .subtitle{color:var(--muted);font-size:14px;margin-bottom:18px;}
+
+  .stamp-row{display:flex;justify-content:center;gap:16px;margin:18px 0 28px;flex-wrap:wrap;}
+  .stamp{
+    width:56px;height:56px;border-radius:50%;
+    border:2px dashed currentColor;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;font-family:var(--mono);
+    opacity:0.85;
+  }
+  .stamp.up{color:var(--up);transform:rotate(-6deg);}
+  .stamp.down{color:var(--down);transform:rotate(4deg);}
+  .stamp.star{color:var(--star);transform:rotate(-3deg);}
+  .stamp.cross{color:var(--down);transform:rotate(5deg);}
+
+  /* mode tabs */
+  .tabs{display:flex;justify-content:center;gap:10px;margin-bottom:20px;}
+  .tab-btn{
+    padding:9px 22px;border-radius:999px;border:1px solid var(--ink);
+    background:var(--white);color:var(--ink);font-family:var(--serif);font-size:15px;
+    cursor:pointer;transition:all .15s ease;
+  }
+  .tab-btn.active{background:var(--ink);color:var(--paper);}
+
+  /* filter panel */
+  .panel{
+    background:var(--white);border:1px solid var(--line);border-radius:6px;
+    padding:18px 20px;margin-bottom:20px;
+  }
+  .panel h2{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:0 0 12px;font-family:var(--mono);font-weight:600;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .chip{
+    padding:6px 12px;border-radius:5px;border:1px solid var(--line);background:var(--paper);
+    font-size:13px;cursor:pointer;user-select:none;color:var(--muted);
+    border-left-width:4px;transition:all .12s ease;
+  }
+  .chip.selected{background:var(--paper2);color:var(--ink);font-weight:600;}
+  .panel-actions{display:flex;gap:10px;align-items:center;font-size:13px;}
+  .link-btn{background:none;border:none;color:var(--up);cursor:pointer;font-size:13px;text-decoration:underline;padding:0;font-family:var(--serif);}
+  .count-badge{color:var(--muted);font-size:13px;margin-left:auto;font-family:var(--mono);}
+
+  /* study cards */
+  #studyView{display:none;}
+  .search-box{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:6px;font-size:14px;font-family:var(--mono);margin-bottom:16px;background:var(--white);}
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;}
+  .flashcard{
+    background:var(--white);border:1px solid var(--line);border-radius:6px;
+    padding:14px 14px 12px;cursor:pointer;position:relative;min-height:92px;
+    display:flex;flex-direction:column;justify-content:center;
+  }
+  .flashcard .bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:6px 6px 0 0;}
+  .flashcard .en{font-family:var(--mono);font-size:15px;font-weight:600;word-break:break-word;}
+  .flashcard .zh{font-family:var(--serif);font-size:14px;color:var(--muted);margin-top:6px;display:none;}
+  .flashcard.flipped .en{color:var(--muted);font-size:13px;}
+  .flashcard.flipped .zh{display:block;color:var(--ink);font-size:16px;}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;}
+  .speak-btn{
+    background:none;border:1px solid var(--line);border-radius:5px;width:26px;height:26px;
+    font-size:13px;cursor:pointer;flex-shrink:0;color:var(--ink);
+  }
+  .speak-btn:hover{background:var(--paper2);}
+  .cat-tag{font-size:10px;color:var(--white);border-radius:3px;padding:1px 6px;font-family:var(--mono);align-self:flex-start;margin-top:8px;}
+
+  /* dictation */
+  #dictationSetup, #dictationQuiz, #dictationSummary{display:none;}
+  .quiz-card{
+    background:var(--white);border:1px solid var(--line);border-radius:8px;
+    padding:36px 30px;text-align:center;max-width:520px;margin:0 auto;
+  }
+  .progress-line{display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;color:var(--muted);margin-bottom:22px;}
+  .quiz-zh{font-size:26px;margin:10px 0 6px;font-weight:600;}
+  .quiz-cattag{font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:20px;}
+  .quiz-input{
+    width:100%;padding:12px 14px;font-size:18px;font-family:var(--mono);
+    border:2px solid var(--line);border-radius:6px;text-align:center;margin-bottom:16px;
+  }
+  .quiz-input:focus{outline:none;border-color:var(--up);}
+  .quiz-input.correct{border-color:var(--ok);background:#F1F8F3;}
+  .quiz-input.wrong{border-color:var(--down);background:#FBF0EE;}
+  .feedback-line{min-height:26px;font-family:var(--mono);font-size:14px;margin-bottom:12px;}
+  .feedback-line.correct{color:var(--ok);}
+  .feedback-line.wrong{color:var(--down);}
+  .quiz-actions{display:flex;gap:10px;justify-content:center;}
+  .primary-btn{
+    background:var(--ink);color:var(--paper);border:none;border-radius:6px;
+    padding:11px 26px;font-size:15px;cursor:pointer;font-family:var(--serif);
+  }
+  .primary-btn:hover{opacity:0.85;}
+  .ghost-btn{
+    background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;
+    padding:11px 20px;font-size:14px;cursor:pointer;font-family:var(--serif);
+  }
+  .quiz-speak{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:44px;height:44px;border-radius:50%;border:1px solid var(--line);
+    background:var(--paper);cursor:pointer;font-size:20px;margin-bottom:18px;
+  }
+  .quiz-speak:hover{background:var(--paper2);}
+  .end-link{margin-top:18px;font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;}
+
+  /* summary */
+  .score-circle{
+    width:120px;height:120px;border-radius:50%;border:4px solid var(--ink);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    margin:0 auto 20px;font-family:var(--mono);
+  }
+  .score-circle .pct{font-size:28px;font-weight:700;}
+  .score-circle .frac{font-size:12px;color:var(--muted);}
+  .wrong-table{width:100%;border-collapse:collapse;margin-top:20px;text-align:left;font-size:14px;}
+  .wrong-table th{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:6px 8px;}
+  .wrong-table td{padding:8px 8px;border-bottom:1px solid var(--paper2);}
+  .wrong-table td.en{font-family:var(--mono);color:var(--down);}
+
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:50px;line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>托福听力五记号词汇</h1>
+    <div class="subtitle">学习模式 · 默写测试 · 内置发音</div>
+    <div class="stamp-row">
+      <div class="stamp up">⬆</div>
+      <div class="stamp down">⬇</div>
+      <div class="stamp star">✨</div>
+      <div class="stamp cross">✖</div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabStudy">📖 学习模式</button>
+    <button class="tab-btn" id="tabDictation">✏️ 默写模式</button>
+  </div>
+
+  <div class="panel">
+    <h2>选择分类</h2>
+    <div class="chip-row" id="chipRow"></div>
+    <div class="panel-actions">
+      <button class="link-btn" id="selectAll">全选</button>
+      <button class="link-btn" id="selectNone">清空</button>
+      <span class="count-badge" id="countBadge"></span>
+    </div>
+  </div>
+
+  <!-- 学习模式 -->
+  <div id="studyView">
+    <input type="text" class="search-box" id="searchBox" placeholder="搜索单词或中文意思…">
+    <div class="card-grid" id="cardGrid"></div>
+  </div>
+
+  <!-- 默写设置 -->
+  <div id="dictationSetup">
+    <div class="panel" style="text-align:center;">
+      <h2>默写设置</h2>
+      <p style="color:var(--muted);font-size:14px;">系统会显示中文意思，你需要拼写出对应的英文单词/词组。可点击🔊听发音辅助记忆。</p>
+      <p style="font-family:var(--mono);font-size:13px;color:var(--muted);margin-bottom:16px;" id="dictationCount"></p>
+      <button class="primary-btn" id="startDictation">开始默写</button>
+    </div>
+  </div>
+
+  <!-- 默写测试中 -->
+  <div id="dictationQuiz">
+    <div class="quiz-card">
+      <div class="progress-line">
+        <span id="quizProgress">第 1 / 20 题</span>
+        <span id="quizScore">正确 0 / 已答 0</span>
+      </div>
+      <div class="quiz-cattag" id="quizCat"></div>
+      <div class="quiz-zh" id="quizZh"></div>
+      <button class="quiz-speak" id="quizSpeak" title="播放发音">🔊</button>
+      <div>
+        <input type="text" class="quiz-input" id="quizInput" placeholder="输入英文单词 / 词组" autocomplete="off">
+      </div>
+      <div class="feedback-line" id="quizFeedback"></div>
+      <div class="quiz-actions" id="quizActions">
+        <button class="primary-btn" id="quizSubmit">提交（Enter）</button>
+      </div>
+      <div class="end-link" id="endQuiz">结束本次默写，查看结果</div>
+    </div>
+  </div>
+
+  <!-- 默写结果 -->
+  <div id="dictationSummary">
+    <div class="quiz-card" style="max-width:560px;">
+      <h2 style="font-family:var(--serif);font-size:20px;margin-top:0;">默写结果</h2>
+      <div class="score-circle">
+        <div class="pct" id="sumPct">0%</div>
+        <div class="frac" id="sumFrac">0 / 0</div>
+      </div>
+      <div id="sumWrongWrap">
+        <p style="color:var(--muted);font-size:13px;text-align:left;margin-bottom:4px;">需要复习的词：</p>
+        <table class="wrong-table" id="wrongTable"></table>
+      </div>
+      <div class="quiz-actions" style="margin-top:24px;">
+        <button class="primary-btn" id="reviewWrong">只复习错题</button>
+        <button class="ghost-btn" id="restartAll">重新开始</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    发音功能基于浏览器自带的语音合成（Web Speech API），建议使用 Chrome / Edge 浏览器获得最佳效果。<br>
+    默写判分不区分大小写，会自动去除首尾空格；含 " / " 的词组按其中任一写法均可判定正确。
+  </footer>
+
+</div>
+
+<script>
+// ---------------- 数据 ----------------
+const CATS = [
+  {id:1,  label:'⬆ 上箭头',        color:'var(--up)'},
+  {id:2,  label:'⬇ 下箭头',        color:'var(--down)'},
+  {id:3,  label:'✨ 五角星',        color:'var(--star)'},
+  {id:4,  label:'✖ 打叉',          color:'var(--down)'},
+  {id:5,  label:'情绪·态度词',      color:'var(--emo)'},
+  {id:6,  label:'特性/好好坏名词',   color:'var(--slate)'},
+  {id:7,  label:'对比篇章词',       color:'var(--slate)'},
+  {id:8,  label:'时间篇章词',       color:'var(--slate)'},
+  {id:9,  label:'高频领域名词',     color:'var(--slate)'},
+  {id:10, label:'功能性提示词组',   color:'var(--slate)'},
+  {id:11, label:'中性描述词',       color:'var(--slate)'},
+];
+
+const WORDS = [
+// 1 上箭头
+{en:'aid',zh:'帮助；援助',cat:1},{en:'resonate',zh:'引起共鸣',cat:1},{en:'amplify',zh:'放大；增强',cat:1},
+{en:'reveal',zh:'揭示；显露',cat:1},{en:"raise someone's profile",zh:'提升知名度',cat:1},{en:'reintroduce',zh:'重新引入',cat:1},
+{en:'promote',zh:'促进；推广',cat:1},{en:'boost',zh:'提升；促进',cat:1},{en:'eco-friendly',zh:'环保的',cat:1},
+{en:'generate',zh:'产生',cat:1},{en:'expand',zh:'扩大',cat:1},{en:'spread',zh:'传播；扩散',cat:1},
+{en:'enrich',zh:'丰富',cat:1},{en:'flourish',zh:'繁荣；茁壮成长',cat:1},{en:'tap into',zh:'利用；挖掘',cat:1},
+{en:'embraced',zh:'欣然接受的',cat:1},{en:'enhance',zh:'提升；增强',cat:1},{en:'foster',zh:'培养；促进',cat:1},
+{en:'absorb',zh:'吸收',cat:1},{en:'exploded',zh:'爆发式增长',cat:1},{en:'leverage',zh:'利用；借助',cat:1},
+{en:'beneficial',zh:'有益的',cat:1},{en:'elevate',zh:'提升',cat:1},{en:'optimize',zh:'优化',cat:1},
+{en:'stimulate',zh:'刺激；促进',cat:1},{en:'emerge',zh:'出现；浮现',cat:1},{en:'accelerate',zh:'加速',cat:1},
+{en:'support',zh:'支持',cat:1},{en:'allow',zh:'允许',cat:1},{en:'yield',zh:'产出；带来',cat:1},
+{en:'last for years',zh:'持续多年',cat:1},{en:'contain',zh:'包含；控制住',cat:1},
+
+// 2 下箭头
+{en:'block',zh:'阻挡',cat:2},{en:'barely',zh:'几乎不',cat:2},{en:'predictable',zh:'可预测的（贬义：缺乏新意）',cat:2},
+{en:'backlash',zh:'强烈反对',cat:2},{en:'conflict',zh:'冲突',cat:2},{en:'dependent',zh:'依赖的',cat:2},
+{en:'lack',zh:'缺乏',cat:2},{en:'threat',zh:'威胁',cat:2},{en:'disrupt',zh:'扰乱；打断',cat:2},
+{en:'cautious',zh:'谨慎的',cat:2},{en:'caution',zh:'谨慎；警惕',cat:2},{en:'credulous',zh:'轻信的',cat:2},
+{en:'limited',zh:'有限的',cat:2},{en:'nearly',zh:'几乎（不足义）',cat:2},{en:'banned',zh:'被禁止的',cat:2},
+{en:'overshadow',zh:'掩盖；使黯然失色',cat:2},{en:'isolate',zh:'孤立',cat:2},{en:'overlook',zh:'忽视',cat:2},
+{en:'drawback',zh:'缺点',cat:2},{en:'fade',zh:'消退；褪色',cat:2},{en:'excess',zh:'过量',cat:2},
+{en:'affect',zh:'影响',cat:2},{en:'decline',zh:'下降',cat:2},{en:'hesitate to',zh:'犹豫',cat:2},
+{en:'decay',zh:'衰败；腐烂',cat:2},{en:'dilemma',zh:'困境',cat:2},{en:'chaotic',zh:'混乱的',cat:2},
+{en:'dormant',zh:'休眠的；不活跃的',cat:2},{en:'exhaust',zh:'耗尽',cat:2},{en:'leave behind',zh:'落后；被抛下',cat:2},
+{en:'flaw',zh:'缺陷',cat:2},{en:'underserved',zh:'服务不足的',cat:2},{en:'demanding',zh:'苛刻的；高要求的',cat:2},
+{en:'overwhelming',zh:'压倒性的',cat:2},{en:'rule out',zh:'排除',cat:2},{en:'badly',zh:'严重地',cat:2},
+{en:'up to chance',zh:'听天由命',cat:2},{en:'impairment',zh:'损伤',cat:2},{en:'divergence',zh:'分歧',cat:2},
+{en:'fragile',zh:'脆弱的',cat:2},{en:'moderate',zh:'适中的（未达强调级别）',cat:2},{en:'struggle',zh:'挣扎；困境',cat:2},
+
+// 3 五角星
+{en:'remarkable',zh:'非凡的',cat:3},{en:'immense',zh:'巨大的',cat:3},{en:'immensely',zh:'极大地',cat:3},
+{en:'especially',zh:'尤其',cat:3},{en:'particularly',zh:'特别',cat:3},{en:'notably',zh:'显著地',cat:3},
+{en:'explicitly',zh:'明确地',cat:3},{en:'obviously',zh:'明显地',cat:3},{en:'significant',zh:'显著的',cat:3},
+{en:'significantly',zh:'显著地',cat:3},{en:'crucial',zh:'至关重要的',cat:3},{en:'substantial',zh:'大量的；重大的',cat:3},
+{en:'enormous',zh:'巨大的',cat:3},{en:'distinctive',zh:'独特的',cat:3},{en:'astonishing',zh:'令人惊讶的',cat:3},
+{en:'dramatically',zh:'戏剧性地',cat:3},{en:'exceptionally',zh:'异常地；特别地',cat:3},{en:'massive',zh:'巨大的',cat:3},
+{en:'profound',zh:'深远的',cat:3},{en:'critical',zh:'至关重要的',cat:3},{en:'noticeable',zh:'显著的',cat:3},
+{en:'presumably',zh:'据推测',cat:3},{en:'essential',zh:'必不可少的',cat:3},{en:'delicate',zh:'精细的；微妙的',cat:3},
+{en:'bold',zh:'大胆的',cat:3},{en:'consensus',zh:'共识',cat:3},{en:'strengthen',zh:'加强',cat:3},
+{en:'heighten',zh:'提高；加剧',cat:3},{en:'compelling',zh:'极具说服力的',cat:3},{en:'mesmerizing',zh:'令人着迷的',cat:3},
+{en:'vibrant',zh:'充满活力的',cat:3},{en:'vital',zh:'至关重要的',cat:3},{en:'convincing',zh:'令人信服的',cat:3},
+{en:'fundamental',zh:'根本的',cat:3},{en:'vivid',zh:'生动的',cat:3},{en:'innovative',zh:'创新的',cat:3},
+{en:'renowned',zh:'著名的',cat:3},{en:'ingenious',zh:'巧妙的',cat:3},{en:'impressive',zh:'令人印象深刻的',cat:3},
+
+// 4 打叉
+{en:'no longer',zh:'不再',cat:4},{en:'eliminate',zh:'消除',cat:4},{en:'eradicate',zh:'根除（=eliminate）',cat:4},
+{en:'gone',zh:'消失了',cat:4},{en:'exclude',zh:'排除',cat:4},{en:'without',zh:'没有',cat:4},
+{en:'absence',zh:'缺席；不存在',cat:4},{en:'banned',zh:'被禁止（完全否定）',cat:4},
+
+// 5 情绪·态度词
+{en:'fascinated',zh:'着迷的',cat:5},{en:'indifferent',zh:'冷漠的',cat:5},{en:'frustrated',zh:'沮丧的',cat:5},
+{en:'intrigued',zh:'感兴趣的',cat:5},{en:'enchanted',zh:'陶醉的',cat:5},{en:'critics',zh:'批评者',cat:5},
+{en:'cautious',zh:'谨慎的（态度）',cat:5},{en:'credulous',zh:'轻信的（态度）',cat:5},{en:'assumption',zh:'假设',cat:5},
+{en:'confidence',zh:'信心',cat:5},{en:'hesitate to',zh:'犹豫（态度）',cat:5},{en:'genuinely',zh:'真诚地',cat:5},
+{en:'awkward',zh:'尴尬的',cat:5},{en:'plausible',zh:'看似合理的',cat:5},
+
+// 6 特性/好好坏名词
+{en:'principle',zh:'原则',cat:6},{en:'dimension',zh:'维度',cat:6},{en:'cornerstone',zh:'基石',cat:6},
+{en:'advantage',zh:'优点',cat:6},{en:'disadvantage',zh:'缺点',cat:6},{en:'benefit',zh:'益处',cat:6},
+{en:'drawback',zh:'缺点',cat:6},{en:'role',zh:'角色；作用',cat:6},{en:'aspect',zh:'方面',cat:6},
+{en:'application',zh:'应用',cat:6},{en:'appeal',zh:'吸引力',cat:6},{en:'consequence',zh:'后果',cat:6},
+{en:'downside',zh:'缺点',cat:6},{en:'characteristic',zh:'特征',cat:6},{en:'implication',zh:'影响；含义',cat:6},
+{en:'pattern',zh:'模式',cat:6},{en:'theory',zh:'理论',cat:6},{en:'scholar',zh:'学者',cat:6},{en:'debate',zh:'辩论',cat:6},
+
+// 7 对比篇章词
+{en:'unlike',zh:'不像',cat:7},{en:'contrary to',zh:'与…相反',cat:7},{en:'in contrast',zh:'与…形成对比',cat:7},
+{en:'opposite from',zh:'与…相反',cat:7},{en:'instead of',zh:'而不是',cat:7},{en:'rather than',zh:'而不是',cat:7},
+{en:'despite',zh:'尽管',cat:7},{en:'on the flip side',zh:'另一方面',cat:7},{en:'resemble',zh:'与…相似',cat:7},
+{en:'wide',zh:'宽的',cat:7},{en:'narrow',zh:'窄的',cat:7},{en:'paradoxically',zh:'矛盾地',cat:7},
+{en:'nonetheless',zh:'尽管如此',cat:7},{en:'permanent',zh:'永久的（常与temporary对照）',cat:7},{en:'alternative',zh:'替代方案',cat:7},
+
+// 8 时间篇章词
+{en:'decade(s)',zh:'十年',cat:8,answers:['decade','decades']},{en:'millennium',zh:'千年（单数）',cat:8},
+{en:'millennia',zh:'千年（复数）',cat:8},{en:'initially',zh:'最初',cat:8},{en:'eventually',zh:'最终',cat:8},
+{en:'previously',zh:'之前',cat:8},{en:'continuously',zh:'持续地',cat:8},{en:'recently',zh:'最近',cat:8},
+{en:'pioneer',zh:'先驱',cat:8},{en:'contemporary',zh:'当代的',cat:8},{en:'lay the groundwork',zh:'为…奠定基础',cat:8},
+{en:'pave the way',zh:'为…铺平道路',cat:8},{en:'formative',zh:'形成期的（如 formative years）',cat:8},
+
+// 9 高频领域名词
+{en:'landfill',zh:'垃圾填埋场',cat:9,sub:'环境类'},{en:'microbes',zh:'微生物',cat:9,sub:'环境类'},
+{en:'pollutant',zh:'污染物',cat:9,sub:'环境类'},{en:'composting',zh:'堆肥',cat:9,sub:'环境类'},
+{en:'fertilizer',zh:'肥料',cat:9,sub:'环境类'},{en:'soil',zh:'土壤',cat:9,sub:'环境类'},
+{en:'biodiversity',zh:'生物多样性',cat:9,sub:'环境类'},{en:'acid',zh:'酸',cat:9,sub:'环境类'},
+{en:'mentor',zh:'导师',cat:9,sub:'商业类'},{en:'surrealism',zh:'超现实主义',cat:9,sub:'艺术类'},
+{en:'regulate',zh:'调节',cat:9,sub:'心理篇章常用动词'},{en:'case study',zh:'案例研究',cat:9,sub:'社会/通用'},
+{en:'consensus',zh:'共识',cat:9,sub:'社会/通用'},{en:'struggle',zh:'挣扎（中性名词义）',cat:9,sub:'社会/通用'},
+
+// 10 功能性提示词组
+{en:'refer to',zh:'指的是',cat:10},{en:'which means',zh:'意味着',cat:10},{en:'as a result',zh:'因此',cat:10},
+{en:'ultimately',zh:'最终',cat:10},{en:'nonetheless',zh:'尽管如此',cat:10},{en:'no doubt',zh:'毫无疑问',cat:10},
+{en:'in addition to',zh:'除…之外',cat:10},{en:'due to',zh:'由于',cat:10},{en:'deal with',zh:'处理',cat:10},
+{en:'solve',zh:'解决',cat:10},{en:'address the problem/challenge',zh:'解决问题',cat:10,dictation:false},
+{en:'resolve the problem/challenge',zh:'解决问题',cat:10,dictation:false},{en:'rituals',zh:'仪式（错误引导类名词）',cat:10},
+{en:'outline',zh:'概述（错误引导类动词）',cat:10},
+
+// 11 中性描述词
+{en:'blend',zh:'混合',cat:11},{en:'combine',zh:'结合',cat:11},{en:'impact',zh:'影响',cat:11},
+{en:'impactful',zh:'有影响力的',cat:11},{en:'relatable',zh:'易产生共鸣的',cat:11},{en:'authentic',zh:'真实的',cat:11},
+{en:'transparent',zh:'透明的',cat:11},{en:'incorporate',zh:'纳入',cat:11},{en:'harmonious',zh:'和谐的',cat:11},
+{en:'fair',zh:'公平的',cat:11},{en:'efficient',zh:'高效的',cat:11},{en:'diverse',zh:'多样的',cat:11},
+{en:'reproduce',zh:'繁殖；再现',cat:11},{en:'productive',zh:'高产的',cat:11},{en:'maintain',zh:'维持',cat:11},
+{en:'aesthetic',zh:'美学的',cat:11},{en:'communal',zh:'公共的；集体的',cat:11},{en:'viable',zh:'可行的',cat:11},
+{en:'capable',zh:'有能力的',cat:11},{en:'recognizable',zh:'可识别的',cat:11},{en:'seamless',zh:'无缝的',cat:11},
+{en:'adapt',zh:'适应',cat:11},{en:'responsive',zh:'响应迅速的',cat:11},{en:'ensure',zh:'确保',cat:11},
+{en:'desired',zh:'期望的',cat:11},{en:'sophisticated',zh:'复杂精密的',cat:11},{en:'rapid',zh:'快速的',cat:11},
+{en:'sustainable',zh:'可持续的',cat:11},{en:'strive',zh:'努力',cat:11},{en:'preserve',zh:'保存',cat:11},
+{en:'compatible',zh:'兼容的',cat:11},{en:'pursuit',zh:'追求',cat:11},{en:'consistent',zh:'一致的',cat:11},
+{en:'immune',zh:'免疫的',cat:11},{en:'accessible',zh:'易获取的',cat:11},{en:'intact',zh:'完整无损的',cat:11},
+{en:'firsthand',zh:'第一手的',cat:11},{en:'core',zh:'核心',cat:11},{en:'prioritize',zh:'优先考虑',cat:11},
+{en:'intricate',zh:'复杂精细的',cat:11},{en:'rooted',zh:'根植于…的',cat:11},{en:'solid',zh:'扎实的',cat:11},
+{en:'effortless',zh:'毫不费力的',cat:11},{en:'precision',zh:'精确度',cat:11},{en:'dynamic',zh:'动态的',cat:11},
+{en:'lure',zh:'吸引；诱惑',cat:11},{en:'endure',zh:'忍受；持续存在',cat:11},{en:'effective',zh:'有效的',cat:11},
+{en:'pursue',zh:'追求',cat:11},{en:'legal',zh:'合法的',cat:11},
+];
+
+// ---------------- 状态 ----------------
+let selectedCats = new Set(CATS.map(c=>c.id));
+let currentMode = 'study'; // study | dictation
+
+// 默写状态
+let quizQueue = [];
+let quizIndex = 0;
+let quizCorrect = 0;
+let quizAnswered = 0;
+let quizWrongList = [];
+let currentAnswered = false;
+let reviewMode = false;
+
+// ---------------- 语音 ----------------
+function speak(text){
+  if(!('speechSynthesis' in window)){alert('当前浏览器不支持语音合成，请使用 Chrome 或 Edge。');return;}
+  window.speechSynthesis.cancel();
+  const clean = text.replace(/\(s\)/g,'s').replace(/\/.*/,'').trim();
+  const u = new SpeechSynthesisUtterance(clean);
+  u.lang = 'en-US';
+  u.rate = 0.88;
+  window.speechSynthesis.speak(u);
+}
+
+// ---------------- 渲染分类chip ----------------
+const chipRow = document.getElementById('chipRow');
+CATS.forEach(c=>{
+  const chip = document.createElement('div');
+  chip.className = 'chip selected';
+  chip.style.borderLeftColor = c.color;
+  chip.textContent = c.label;
+  chip.dataset.cat = c.id;
+  chip.addEventListener('click',()=>{
+    if(selectedCats.has(c.id)){selectedCats.delete(c.id);chip.classList.remove('selected');}
+    else{selectedCats.add(c.id);chip.classList.add('selected');}
+    refreshAll();
+  });
+  chipRow.appendChild(chip);
+});
+document.getElementById('selectAll').addEventListener('click',()=>{
+  selectedCats = new Set(CATS.map(c=>c.id));
+  document.querySelectorAll('.chip').forEach(el=>el.classList.add('selected'));
+  refreshAll();
+});
+document.getElementById('selectNone').addEventListener('click',()=>{
+  selectedCats.clear();
+  document.querySelectorAll('.chip').forEach(el=>el.classList.remove('selected'));
+  refreshAll();
+});
+
+function getFilteredWords(){
+  return WORDS.filter(w=>selectedCats.has(w.cat));
+}
+
+// ---------------- 学习模式 ----------------
+const cardGrid = document.getElementById('cardGrid');
+const searchBox = document.getElementById('searchBox');
+
+function renderCards(){
+  const q = searchBox.value.trim().toLowerCase();
+  let list = getFilteredWords();
+  if(q){
+    list = list.filter(w=> w.en.toLowerCase().includes(q) || w.zh.includes(q));
+  }
+  cardGrid.innerHTML = '';
+  list.forEach(w=>{
+    const cat = CATS.find(c=>c.id===w.cat);
+    const card = document.createElement('div');
+    card.className = 'flashcard';
+    card.innerHTML = `
+      <div class="bar" style="background:${cat.color}"></div>
+      <div class="card-top">
+        <div class="en">${w.en}</div>
+        <button class="speak-btn" title="播放发音">🔊</button>
+      </div>
+      <div class="zh">${w.zh}</div>
+      <div class="cat-tag" style="background:${cat.color}">${cat.label}</div>
+    `;
+    card.querySelector('.speak-btn').addEventListener('click',(e)=>{
+      e.stopPropagation();
+      speak(w.en);
+    });
+    card.addEventListener('click',()=> card.classList.toggle('flipped'));
+    cardGrid.appendChild(card);
+  });
+}
+searchBox.addEventListener('input', renderCards);
+
+// ---------------- 默写模式 ----------------
+function normalize(s){
+  return s.trim().toLowerCase().replace(/\s+/g,' ');
+}
+function getAnswers(w){
+  if(w.answers) return w.answers.map(normalize);
+  // 支持 "a / b" 形式，任一写法正确；括号内容忽略
+  const base = w.en.replace(/\([^)]*\)/g,'').trim();
+  return base.split('/').map(s=>normalize(s));
+}
+
+function setupDictationCount(){
+  const pool = getFilteredWords().filter(w=>w.dictation!==false);
+  document.getElementById('dictationCount').textContent = `本次范围内共有 ${pool.length} 个可默写词条`;
+}
+
+document.getElementById('startDictation').addEventListener('click', ()=>{
+  reviewMode = false;
+  startQuiz(getFilteredWords().filter(w=>w.dictation!==false));
+});
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function startQuiz(words){
+  if(words.length===0){alert('当前分类下没有可默写的词，请先选择至少一个分类。');return;}
+  quizQueue = shuffle(words);
+  quizIndex = 0;
+  quizCorrect = 0;
+  quizAnswered = 0;
+  quizWrongList = [];
+  showView('dictationQuiz');
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  currentAnswered = false;
+  const w = quizQueue[quizIndex];
+  const cat = CATS.find(c=>c.id===w.cat);
+  document.getElementById('quizProgress').textContent = `第 ${quizIndex+1} / ${quizQueue.length} 题`;
+  document.getElementById('quizScore').textContent = `正确 ${quizCorrect} / 已答 ${quizAnswered}`;
+  document.getElementById('quizCat').textContent = cat.label + (w.sub? ' · '+w.sub : '');
+  document.getElementById('quizZh').textContent = w.zh;
+  const input = document.getElementById('quizInput');
+  input.value = '';
+  input.className = 'quiz-input';
+  input.disabled = false;
+  input.focus();
+  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('quizFeedback').className = 'feedback-line';
+  document.getElementById('quizSubmit').textContent = '提交（Enter）';
+}
+
+function checkAnswer(){
+  if(currentAnswered){ nextQuestion(); return; }
+  const w = quizQueue[quizIndex];
+  const input = document.getElementById('quizInput');
+  const userVal = normalize(input.value);
+  const answers = getAnswers(w);
+  const isCorrect = answers.includes(userVal) && userVal.length>0;
+  currentAnswered = true;
+  quizAnswered++;
+  const fb = document.getElementById('quizFeedback');
+  if(isCorrect){
+    quizCorrect++;
+    input.className = 'quiz-input correct';
+    fb.textContent = '✓ 正确！';
+    fb.className = 'feedback-line correct';
+  }else{
+    quizWrongList.push(w);
+    input.className = 'quiz-input wrong';
+    fb.textContent = `✗ 正确答案：${w.en}`;
+    fb.className = 'feedback-line wrong';
+  }
+  input.disabled = true;
+  document.getElementById('quizScore').textContent = `正确 ${quizCorrect} / 已答 ${quizAnswered}`;
+  document.getElementById('quizSubmit').textContent = (quizIndex < quizQueue.length-1) ? '下一题（Enter）' : '查看结果（Enter）';
+}
+
+function nextQuestion(){
+  if(quizIndex < quizQueue.length-1){
+    quizIndex++;
+    renderQuizQuestion();
+  }else{
+    finishQuiz();
+  }
+}
+
+document.getElementById('quizSubmit').addEventListener('click', checkAnswer);
+document.getElementById('quizInput').addEventListener('keydown',(e)=>{
+  if(e.key==='Enter') checkAnswer();
+});
+document.getElementById('quizSpeak').addEventListener('click',()=>{
+  speak(quizQueue[quizIndex].en);
+});
+document.getElementById('endQuiz').addEventListener('click', finishQuiz);
+
+function finishQuiz(){
+  showView('dictationSummary');
+  const pct = quizAnswered? Math.round(quizCorrect/quizAnswered*100) : 0;
+  document.getElementById('sumPct').textContent = pct + '%';
+  document.getElementById('sumFrac').textContent = `${quizCorrect} / ${quizAnswered}`;
+  const table = document.getElementById('wrongTable');
+  if(quizWrongList.length===0){
+    table.innerHTML = '<tr><td style="color:var(--ok);">🎉 全部正确，没有需要复习的词！</td></tr>';
+    document.getElementById('reviewWrong').style.display='none';
+  }else{
+    document.getElementById('reviewWrong').style.display='inline-block';
+    table.innerHTML = '<tr><th>英文</th><th>中文</th></tr>' +
+      quizWrongList.map(w=>`<tr><td class="en">${w.en}</td><td>${w.zh}</td></tr>`).join('');
+  }
+}
+
+document.getElementById('restartAll').addEventListener('click', ()=>{
+  showView('dictationSetup');
+  setupDictationCount();
+});
+document.getElementById('reviewWrong').addEventListener('click', ()=>{
+  const wrongOnly = quizWrongList.slice();
+  startQuiz(wrongOnly);
+});
+
+// ---------------- 视图切换 ----------------
+function showView(id){
+  ['studyView','dictationSetup','dictationQuiz','dictationSummary'].forEach(v=>{
+    document.getElementById(v).style.display = (v===id)?'block':'none';
+  });
+}
+
+document.getElementById('tabStudy').addEventListener('click', ()=>{
+  currentMode='study';
+  document.getElementById('tabStudy').classList.add('active');
+  document.getElementById('tabDictation').classList.remove('active');
+  showView('studyView');
+  renderCards();
+});
+document.getElementById('tabDictation').addEventListener('click', ()=>{
+  currentMode='dictation';
+  document.getElementById('tabDictation').classList.add('active');
+  document.getElementById('tabStudy').classList.remove('active');
+  showView('dictationSetup');
+  setupDictationCount();
+});
+
+function refreshAll(){
+  document.getElementById('countBadge').textContent = `已选 ${selectedCats.size} / ${CATS.length} 类，共 ${getFilteredWords().length} 词`;
+  if(currentMode==='study') renderCards();
+  else setupDictationCount();
+}
+
+// 初始化
+refreshAll();
+showView('studyView');
+renderCards();
+</script>
+</body>
+</html>
